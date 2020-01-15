@@ -1,5 +1,9 @@
 import myFirebase from 'Service/Firebase'
 
+import * as CONSTANTS from 'Constants'
+
+import { fetchData } from 'Store/Feature/data'
+
 import {
 	requestNewUser,
 	receiveNewUser,
@@ -18,7 +22,7 @@ export const createUser = (uid, email) => dispatch => {
 	myFirebase
 		.database()
 		.ref(`user/${uid}`)
-		.set(initialUserState)
+		.set({ email })
 		.then(() => {
 			dispatch(receiveNewUser({ email }))
 		})
@@ -41,9 +45,11 @@ export const fetchUser = uid => dispatch => {
 			dispatch(receiveLoadUser(snapshot.val()))
 			return snapshot.val()
 		})
-		.then(value => {
-			// Do clan / group fetching here?
-			console.log(value)
+		.then(async value => {
+			if (parseInt(value.level) === parseInt(CONSTANTS.ADMIN_LEVEL)) {
+				console.log('Admin logged in')
+				await dispatch(fetchData())
+			}
 		})
 		.catch(error => {
 			console.log(error)

@@ -34,7 +34,7 @@ const NavbarAuth = () => {
 			>
 				Logout
 			</button>
-			<span>{details.email}</span>
+			<span>{details.username}</span>
 		</>
 	)
 }

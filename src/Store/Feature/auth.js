@@ -67,6 +67,7 @@ export const loginUser = (email, password) => dispatch => {
 		.auth()
 		.signInWithEmailAndPassword(email, password)
 		.then(userObj => {
+			// TODO: Something here is maybe funky as doesn't return a usable object to login
 			dispatch(receiveLogin(userObj.user))
 		})
 		.catch(error => {
