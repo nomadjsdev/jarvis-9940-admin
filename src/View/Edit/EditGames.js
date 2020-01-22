@@ -83,7 +83,7 @@ const EditGames = props => {
 								onChange={() => {
 									setHasPve(!hasPve)
 								}}
-							/>{' '}
+							/>
 						</p>
 						<p>
 							Has PvP:{' '}
@@ -93,7 +93,7 @@ const EditGames = props => {
 								onChange={() => {
 									setHasPvp(!hasPvp)
 								}}
-							/>{' '}
+							/>
 						</p>
 						<p>
 							Is active:{' '}
@@ -103,7 +103,7 @@ const EditGames = props => {
 								onChange={() => {
 									setIsActive(!isActive)
 								}}
-							/>{' '}
+							/>
 						</p>
 					</div>
 					<div>

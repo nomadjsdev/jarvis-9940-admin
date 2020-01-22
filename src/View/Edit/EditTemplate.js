@@ -1,67 +1,171 @@
 import React, { useState } from 'react'
+import Button from 'Component/Global/Button'
 import Row from 'Component/Session/Row'
 import SessionButton from 'Component/Session/Button'
 
 const EditTemplate = props => {
 	const { encounterTemplates, selectedEncounter } = props
 	const [isEditing, setIsEditing] = useState(false)
+	const [template, setTemplate] = useState(encounterTemplates[selectedEncounter] || [])
+
+	const saveTemplate = () => {
+		console.log('SAVING')
+	}
 
 	return (
 		<div>
-			<div>
+			<div style={{ display: 'flex', flexDirection: 'row' }}>
 				<h2>Current template</h2>
-				<button
+				<Button
 					type="button"
+					variant={isEditing ? 'cancel' : 'add'}
 					onClick={() => {
 						setIsEditing(!isEditing)
 					}}
 				>
-					Edit template
-				</button>
+					{isEditing ? 'Cancel' : 'Edit template'}
+				</Button>
 			</div>
-			{encounterTemplates[selectedEncounter].map((row, rowIndex) => {
-				return (
-					<Row key={rowIndex} style={{ display: 'flex', flexFlow: 'row nowrap' }}>
-						{row.map((col, colIndex) => {
+			{!isEditing &&
+				encounterTemplates[selectedEncounter] &&
+				encounterTemplates[selectedEncounter].map((row, rowIndex) => {
+					return (
+						<Row key={rowIndex} style={{ display: 'flex', flexFlow: 'row nowrap' }}>
+							{row.map((col, colIndex) => {
+								return (
+									<div key={colIndex}>
+										{col.map((button, buttonIndex) => {
+											if (button.type === 'toggle') {
+												return (
+													<div key={buttonIndex}>
+														<SessionButton type="button" variant="danger">
+															{button.text}
+														</SessionButton>
+													</div>
+												)
+											}
+											if (button.type === 'group') {
+												return (
+													<div
+														key={buttonIndex}
+														style={{
+															display: 'flex',
+															flexDirection: button.direction === 'horizontal' ? 'row' : 'column',
+														}}
+													>
+														{button.buttons.map((button, buttonIndex) => {
+															return (
+																<SessionButton key={buttonIndex} type="button" variant="message">
+																	{button.text}
+																</SessionButton>
+															)
+														})}
+													</div>
+												)
+											}
+											return false
+										})}
+									</div>
+								)
+							})}
+						</Row>
+					)
+				})}
+			{isEditing && (
+				<>
+					{template &&
+						template.map((row, rowIndex) => {
 							return (
-								<div key={colIndex}>
-									{col.map((button, buttonIndex) => {
-										if (button.type === 'toggle') {
-											return (
-												<div key={buttonIndex}>
-													<SessionButton type="button" variant="danger">
-														{button.text}
-													</SessionButton>
-												</div>
-											)
-										}
-										if (button.type === 'group') {
+								<Row key={rowIndex} style={{ display: 'flex', flexFlow: 'row nowrap' }}>
+									{row &&
+										row.map((col, colIndex) => {
 											return (
 												<div
-													key={buttonIndex}
+													key={colIndex}
 													style={{
+														width: '100%',
 														display: 'flex',
-														flexDirection: button.direction === 'horizontal' ? 'row' : 'column',
+														flexDirection: 'row',
+														flexBasis: `100 / ${row.length}%`,
+														border: '1px solid red',
 													}}
 												>
-													{button.buttons.map((button, buttonIndex) => {
-														return (
-															<SessionButton key={buttonIndex} type="button" variant="message">
-																{button.text}
-															</SessionButton>
-														)
-													})}
+													{col &&
+														col.map((button, buttonIndex) => {
+															if (button.type === 'toggle') {
+																return (
+																	<div key={buttonIndex}>
+																		<SessionButton type="button" variant="danger">
+																			{button.text}
+																		</SessionButton>
+																	</div>
+																)
+															}
+															if (button.type === 'group') {
+																return (
+																	<div
+																		key={buttonIndex}
+																		style={{
+																			display: 'flex',
+																			flexDirection: button.direction === 'horizontal' ? 'row' : 'column',
+																		}}
+																	>
+																		{button.buttons.map((button, buttonIndex) => {
+																			return (
+																				<SessionButton key={buttonIndex} type="button" variant="message">
+																					{button.text}
+																				</SessionButton>
+																			)
+																		})}
+																	</div>
+																)
+															}
+															return false
+														})}
 												</div>
 											)
-										}
-										return false
-									})}
-								</div>
+										})}
+									<Button
+										type="button"
+										variant="add"
+										onClick={() => {
+											const newTemplate = [...template]
+											newTemplate[rowIndex].push([])
+											setTemplate(newTemplate)
+										}}
+									>
+										Add column
+									</Button>
+								</Row>
 							)
 						})}
-					</Row>
-				)
-			})}
+					<>
+						<div>
+							<Button
+								type="button"
+								variant="add"
+								onClick={() => {
+									const newTemplate = [...template, []]
+									setTemplate(newTemplate)
+								}}
+							>
+								Add row
+							</Button>
+						</div>
+						<div>
+							<Button
+								type="button"
+								variant="add"
+								onClick={() => {
+									saveTemplate()
+								}}
+							>
+								Save
+							</Button>
+						</div>
+					</>
+				</>
+			)}
 		</div>
 	)
 }

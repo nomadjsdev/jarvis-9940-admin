@@ -19,7 +19,7 @@ export const writeData = data => dispatch => {
 	const { type, id, contents } = data
 	const typeCache = JSON.parse(localStorage.getItem(`cache-${type}`))
 	const updatedTypeCache = {
-		data: { ...typeCache.data, [id]: { ...contents } },
+		data: { ...typeCache.data, [id]: contents },
 		timestamp: Math.floor(Date.now() / 1000),
 	}
 
