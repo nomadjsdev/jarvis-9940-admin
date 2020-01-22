@@ -1,168 +1,74 @@
 import myFirebase from 'Service/Firebase'
 
 import {
-	// requestNewUser,
-	// receiveNewUser,
-	// newUserError,
 	requestLoadData,
 	receiveLoadData,
 	loadDataError,
-	// requestWriteData,
-	// receiveWriteData,
-	// writeDataError,
-	// requestClearUser,
-	// receiveClearUser,
-	// clearUserError,
+	requestWriteData,
+	receiveWriteData,
+	writeDataError,
 } from 'Store/Slice/data'
 
-// export const createUser = (uid, email) => dispatch => {
-// 	dispatch(requestNewUser())
+import { MAX_CACHE_AGE } from 'Constants'
 
-// 	myFirebase
-// 		.database()
-// 		.ref(`user/${uid}`)
-// 		.set({ email })
-// 		.then(() => {
-// 			dispatch(receiveNewUser({ email }))
-// 		})
-// 		.catch(error => {
-// 			console.log(error)
-// 			dispatch(newUserError(error.message))
-// 		})
-// }
+export const writeData = data => dispatch => {
+	// TODO: Check data structure
+	dispatch(requestWriteData())
 
-// export const setSelectedGame = gameId => dispatch => {
-// 	dispatch(requestWriteData())
-// 	dispatch(receiveWriteData({ type: 'selectedGame', data: gameId }))
-// }
+	// `type` should be the target path e.g. `games`
+	const { type, id, contents } = data
+	const typeCache = JSON.parse(localStorage.getItem(`cache-${type}`))
+	const updatedTypeCache = {
+		data: { ...typeCache.data, [id]: { ...contents } },
+		timestamp: Math.floor(Date.now() / 1000),
+	}
+
+	myFirebase
+		.database()
+		.ref(`${type}/${id}`)
+		.set(contents)
+		.then(() => {
+			localStorage.setItem(`cache-${type}`, JSON.stringify(updatedTypeCache))
+			dispatch(receiveWriteData(data))
+		})
+		.catch(error => {
+			console.log(error)
+			dispatch(writeDataError(error.message))
+		})
+}
 
 export const fetchData = () => dispatch => {
-	dispatch(fetchGames())
-	dispatch(fetchActivities())
-	dispatch(fetchEncounters())
-	dispatch(fetchGamePveActivities())
-	dispatch(fetchGamePvpActivities())
-	dispatch(fetchActivityEncounters())
-	dispatch(fetchEncounterTemplates())
+	dispatch(fetch('games'))
+	dispatch(fetch('activities'))
+	dispatch(fetch('encounters'))
+	dispatch(fetch('gamePveActivities'))
+	dispatch(fetch('gamePvpActivities'))
+	dispatch(fetch('activityEncounters'))
+	dispatch(fetch('encounterTemplates'))
 }
 
-export const fetchGames = () => dispatch => {
+export const fetch = type => dispatch => {
 	dispatch(requestLoadData())
 
-	myFirebase
-		.database()
-		.ref(`game`)
-		.once('value')
-		.then(snapshot => {
-			dispatch(receiveLoadData({ type: 'games', data: snapshot.val() }))
-		})
-		.catch(error => {
-			console.log(error)
-			dispatch(loadDataError(error.message))
-		})
+	const typeCache = JSON.parse(localStorage.getItem(`cache-${type}`))
+	const timeNow = Math.floor(Date.now() / 1000)
+	if (typeCache && timeNow - typeCache.timestamp < MAX_CACHE_AGE) {
+		dispatch(receiveLoadData({ type, data: typeCache.data }))
+	} else {
+		myFirebase
+			.database()
+			.ref(type)
+			.once('value')
+			.then(snapshot => {
+				localStorage.setItem(
+					`cache-${type}`,
+					JSON.stringify({ data: snapshot.val(), timestamp: Math.floor(Date.now() / 1000) }),
+				)
+				dispatch(receiveLoadData({ type, data: snapshot.val() }))
+			})
+			.catch(error => {
+				console.log(error)
+				dispatch(loadDataError(error.message))
+			})
+	}
 }
-
-export const fetchActivities = () => dispatch => {
-	dispatch(requestLoadData())
-
-	myFirebase
-		.database()
-		.ref(`activity`)
-		.once('value')
-		.then(snapshot => {
-			dispatch(receiveLoadData({ type: 'activities', data: snapshot.val() }))
-		})
-		.catch(error => {
-			console.log(error)
-			dispatch(loadDataError(error.message))
-		})
-}
-
-export const fetchEncounters = () => dispatch => {
-	dispatch(requestLoadData())
-
-	myFirebase
-		.database()
-		.ref(`encounter`)
-		.once('value')
-		.then(snapshot => {
-			dispatch(receiveLoadData({ type: 'encounters', data: snapshot.val() }))
-		})
-		.catch(error => {
-			console.log(error)
-			dispatch(loadDataError(error.message))
-		})
-}
-
-export const fetchGamePveActivities = () => dispatch => {
-	dispatch(requestLoadData())
-
-	myFirebase
-		.database()
-		.ref(`gamePveActivity`)
-		.once('value')
-		.then(snapshot => {
-			dispatch(receiveLoadData({ type: 'gamePveActivities', data: snapshot.val() }))
-		})
-		.catch(error => {
-			console.log(error)
-			dispatch(loadDataError(error.message))
-		})
-}
-
-export const fetchGamePvpActivities = () => dispatch => {
-	dispatch(requestLoadData())
-
-	myFirebase
-		.database()
-		.ref(`gamePvpActivity`)
-		.once('value')
-		.then(snapshot => {
-			dispatch(receiveLoadData({ type: 'gamePvpActivities', data: snapshot.val() }))
-		})
-		.catch(error => {
-			console.log(error)
-			dispatch(loadDataError(error.message))
-		})
-}
-
-export const fetchActivityEncounters = () => dispatch => {
-	dispatch(requestLoadData())
-
-	myFirebase
-		.database()
-		.ref(`activityEncounter`)
-		.once('value')
-		.then(snapshot => {
-			dispatch(receiveLoadData({ type: 'activityEncounters', data: snapshot.val() }))
-		})
-		.catch(error => {
-			console.log(error)
-			dispatch(loadDataError(error.message))
-		})
-}
-
-export const fetchEncounterTemplates = () => dispatch => {
-	dispatch(requestLoadData())
-
-	myFirebase
-		.database()
-		.ref(`encounterTemplate`)
-		.once('value')
-		.then(snapshot => {
-			dispatch(receiveLoadData({ type: 'encounterTemplates', data: snapshot.val() }))
-		})
-		.catch(error => {
-			console.log(error)
-			dispatch(loadDataError(error.message))
-		})
-}
-
-// export const clearUser = () => dispatch => {
-// 	dispatch(requestClearUser())
-// 	// Check if user object cleared
-// 	// if success
-// 	dispatch(receiveClearUser())
-// 	// else:
-// 	// dispatch(clearUserError("Error message here"))
-// }

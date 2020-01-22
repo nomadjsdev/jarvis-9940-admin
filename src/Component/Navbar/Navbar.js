@@ -4,13 +4,15 @@ import { useSelector, useDispatch } from 'react-redux'
 
 import { logoutUser } from 'Store/Feature/auth'
 
+import NavContainer from './Navbar.styles'
+
 const Navbar = () => {
 	const isAuthenticated = useSelector(state => state.auth.isAuthenticated)
 
 	return (
-		<>
+		<NavContainer>
 			<NavLink to="/">Home</NavLink> | {isAuthenticated ? <NavbarAuth /> : <NavbarDefault />}
-		</>
+		</NavContainer>
 	)
 }
 
@@ -26,6 +28,7 @@ const NavbarAuth = () => {
 
 	return (
 		<>
+			<NavLink to="/edit">Edit encounters</NavLink> | <NavLink to="/admin">Admin users</NavLink>
 			<button
 				type="button"
 				onClick={() => {

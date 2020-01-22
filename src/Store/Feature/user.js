@@ -1,6 +1,6 @@
 import myFirebase from 'Service/Firebase'
 
-import * as CONSTANTS from 'Constants'
+import { ADMIN_LEVEL } from 'Constants'
 
 import { fetchData } from 'Store/Feature/data'
 
@@ -21,7 +21,7 @@ export const createUser = (uid, email) => dispatch => {
 
 	myFirebase
 		.database()
-		.ref(`user/${uid}`)
+		.ref(`users/${uid}`)
 		.set({ email })
 		.then(() => {
 			dispatch(receiveNewUser({ email }))
@@ -39,15 +39,14 @@ export const fetchUser = uid => dispatch => {
 
 	myFirebase
 		.database()
-		.ref(`user/${uid}`)
+		.ref(`users/${uid}`)
 		.once('value')
 		.then(snapshot => {
 			dispatch(receiveLoadUser(snapshot.val()))
 			return snapshot.val()
 		})
 		.then(async value => {
-			if (parseInt(value.level) === parseInt(CONSTANTS.ADMIN_LEVEL)) {
-				console.log('Admin logged in')
+			if (parseInt(value.level) === parseInt(ADMIN_LEVEL)) {
 				await dispatch(fetchData())
 			}
 		})
