@@ -3,6 +3,8 @@ import Button from 'Component/Global/Button'
 import Row from 'Component/Session/Row'
 import SessionButton from 'Component/Session/Button'
 
+import { ToggleButton } from 'jarvis9940-components'
+
 const EditTemplate = props => {
 	const { encounterTemplates, selectedEncounter } = props
 	const [isEditing, setIsEditing] = useState(false)
@@ -38,9 +40,9 @@ const EditTemplate = props => {
 											if (button.type === 'toggle') {
 												return (
 													<div key={buttonIndex}>
-														<SessionButton type="button" variant="danger">
+														<ToggleButton active="true" type="button">
 															{button.text}
-														</SessionButton>
+														</ToggleButton>
 													</div>
 												)
 											}
@@ -95,9 +97,9 @@ const EditTemplate = props => {
 															if (button.type === 'toggle') {
 																return (
 																	<div key={buttonIndex}>
-																		<SessionButton type="button" variant="danger">
+																		<ToggleButton active="true" type="button">
 																			{button.text}
-																		</SessionButton>
+																		</ToggleButton>
 																	</div>
 																)
 															}
