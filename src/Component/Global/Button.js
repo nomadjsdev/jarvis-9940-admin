@@ -11,6 +11,12 @@ const Button = styled.button`
 	${props =>
 		props.variant === 'add' &&
 		css`
+			background: palegreen;
+		`}
+
+	${props =>
+		props.variant === 'delete' &&
+		css`
 			background: palevioletred;
 			color: white;
 		`}

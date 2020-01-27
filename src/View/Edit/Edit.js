@@ -18,6 +18,7 @@ const Edit = () => {
 		encounters,
 		encounterTemplates,
 	} = useSelector(state => state.data)
+	// TODO: Set Activity and Encounter to null when switching Game
 	const [selectedGame, setSelectedGame] = useState(null)
 	const [selectedActivity, setSelectedActivity] = useState(null)
 	const [selectedEncounter, setSelectedEncounter] = useState(null)

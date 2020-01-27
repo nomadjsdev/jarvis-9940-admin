@@ -1,17 +1,26 @@
 import React, { useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { ToggleButton, ButtonGroup } from 'jarvis9940-components'
+
+import safeNanoid from 'Function/safeNanoid'
+import { writeData } from 'Store/Feature/data'
+
 import Button from 'Component/Global/Button'
 import Row from 'Component/Session/Row'
-import SessionButton from 'Component/Session/Button'
-
-import { ToggleButton } from 'jarvis9940-components'
 
 const EditTemplate = props => {
+	const dispatch = useDispatch()
 	const { encounterTemplates, selectedEncounter } = props
+
 	const [isEditing, setIsEditing] = useState(false)
 	const [template, setTemplate] = useState(encounterTemplates[selectedEncounter] || [])
 
 	const saveTemplate = () => {
-		console.log('SAVING')
+		// TODO: Prevent writing empty arrays
+		// Each row must have at least one column
+		// Each column must have at least one button or buttonGroup
+		dispatch(writeData({ type: 'encounterTemplates', id: selectedEncounter, contents: template }))
+		setIsEditing(false)
 	}
 
 	return (
@@ -22,6 +31,7 @@ const EditTemplate = props => {
 					type="button"
 					variant={isEditing ? 'cancel' : 'add'}
 					onClick={() => {
+						// TODO: setTemplate = template from localStorage when cancelling edit
 						setIsEditing(!isEditing)
 					}}
 				>
@@ -40,30 +50,12 @@ const EditTemplate = props => {
 											if (button.type === 'toggle') {
 												return (
 													<div key={buttonIndex}>
-														<ToggleButton active="true" type="button">
-															{button.text}
-														</ToggleButton>
+														<ToggleButton>{button.text}</ToggleButton>
 													</div>
 												)
 											}
 											if (button.type === 'group') {
-												return (
-													<div
-														key={buttonIndex}
-														style={{
-															display: 'flex',
-															flexDirection: button.direction === 'horizontal' ? 'row' : 'column',
-														}}
-													>
-														{button.buttons.map((button, buttonIndex) => {
-															return (
-																<SessionButton key={buttonIndex} type="button" variant="message">
-																	{button.text}
-																</SessionButton>
-															)
-														})}
-													</div>
-												)
+												return <ButtonGroup key={buttonIndex} orientation={button.direction} buttons={button.buttons} />
 											}
 											return false
 										})}
@@ -87,7 +79,7 @@ const EditTemplate = props => {
 													style={{
 														width: '100%',
 														display: 'flex',
-														flexDirection: 'row',
+														flexDirection: 'column',
 														flexBasis: `100 / ${row.length}%`,
 														border: '1px solid red',
 													}}
@@ -97,33 +89,51 @@ const EditTemplate = props => {
 															if (button.type === 'toggle') {
 																return (
 																	<div key={buttonIndex}>
-																		<ToggleButton active="true" type="button">
-																			{button.text}
-																		</ToggleButton>
+																		<ToggleButton>{button.text}</ToggleButton>
 																	</div>
 																)
 															}
 															if (button.type === 'group') {
 																return (
-																	<div
+																	<ButtonGroup
 																		key={buttonIndex}
-																		style={{
-																			display: 'flex',
-																			flexDirection: button.direction === 'horizontal' ? 'row' : 'column',
-																		}}
-																	>
-																		{button.buttons.map((button, buttonIndex) => {
-																			return (
-																				<SessionButton key={buttonIndex} type="button" variant="message">
-																					{button.text}
-																				</SessionButton>
-																			)
-																		})}
-																	</div>
+																		orientation={button.direction}
+																		buttons={button.buttons}
+																	/>
 																)
 															}
+
 															return false
 														})}
+													<Button
+														type="button"
+														variant="add"
+														onClick={() => {
+															// This is a quick-and-dirty deep clone of the template nested array
+															// FIXME: There's got to be a better way of doing this!
+															let newTemplate = JSON.parse(JSON.stringify(template))
+															newTemplate[rowIndex][colIndex].push({
+																id: safeNanoid(),
+																text: 'New test',
+																type: 'toggle',
+															})
+															setTemplate(newTemplate)
+														}}
+													>
+														Add button
+													</Button>
+													<Button
+														type="button"
+														variant="delete"
+														onClick={() => {
+															// FIXME: There's got to be a better way of doing this!
+															let newTemplate = JSON.parse(JSON.stringify(template))
+															newTemplate[rowIndex].splice(colIndex, 1)
+															setTemplate(newTemplate)
+														}}
+													>
+														Delete column
+													</Button>
 												</div>
 											)
 										})}
@@ -131,12 +141,25 @@ const EditTemplate = props => {
 										type="button"
 										variant="add"
 										onClick={() => {
-											const newTemplate = [...template]
+											// FIXME: There's got to be a better way of doing this!
+											let newTemplate = JSON.parse(JSON.stringify(template))
 											newTemplate[rowIndex].push([])
 											setTemplate(newTemplate)
 										}}
 									>
 										Add column
+									</Button>
+									<Button
+										type="button"
+										variant="delete"
+										onClick={() => {
+											// FIXME: There's got to be a better way of doing this!
+											let newTemplate = JSON.parse(JSON.stringify(template))
+											newTemplate.splice(rowIndex, 1)
+											setTemplate(newTemplate)
+										}}
+									>
+										Delete row
 									</Button>
 								</Row>
 							)
@@ -147,7 +170,9 @@ const EditTemplate = props => {
 								type="button"
 								variant="add"
 								onClick={() => {
-									const newTemplate = [...template, []]
+									// FIXME: There's got to be a better way of doing this!
+									let newTemplate = JSON.parse(JSON.stringify(template))
+									newTemplate.push([])
 									setTemplate(newTemplate)
 								}}
 							>
