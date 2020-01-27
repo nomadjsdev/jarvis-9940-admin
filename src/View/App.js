@@ -11,6 +11,8 @@ import Admin from 'View/Admin'
 
 import Navbar from 'Component/Navbar'
 
+import NormalizeStyles from 'Styles/NormalizeStyles'
+
 const App = () => {
 	const userLevel = useSelector(state => state.user?.details?.level)
 	const { isLoggingIn, isLoggingOut, isVerifying, isAuthenticated } = useSelector(state => state.auth)
@@ -60,19 +62,22 @@ const App = () => {
 	}
 
 	return (
-		<Router>
-			<Navbar />
-			<Switch>
-				<Route path="/register">{isAuthenticated ? <Redirect to="/" /> : <Register />}</Route>
-				<Route path="/passwordreset">{isAuthenticated ? <Redirect to="/" /> : <PasswordReset />}</Route>
-				<Route path="/login">{isAuthenticated ? <Redirect to="/" /> : <Login />}</Route>
-				<Route path="/edit">{isAuthenticated ? <Edit /> : <Redirect to="/login" />}</Route>
-				<Route path="/admin">{isAuthenticated ? <Admin /> : <Redirect to="/login" />}</Route>
-				<Route path="/">
-					<Home />
-				</Route>
-			</Switch>
-		</Router>
+		<>
+			<NormalizeStyles />
+			<Router>
+				<Navbar />
+				<Switch>
+					<Route path="/register">{isAuthenticated ? <Redirect to="/" /> : <Register />}</Route>
+					<Route path="/passwordreset">{isAuthenticated ? <Redirect to="/" /> : <PasswordReset />}</Route>
+					<Route path="/login">{isAuthenticated ? <Redirect to="/" /> : <Login />}</Route>
+					<Route path="/edit">{isAuthenticated ? <Edit /> : <Redirect to="/login" />}</Route>
+					<Route path="/admin">{isAuthenticated ? <Admin /> : <Redirect to="/login" />}</Route>
+					<Route path="/">
+						<Home />
+					</Route>
+				</Switch>
+			</Router>
+		</>
 	)
 }
 
