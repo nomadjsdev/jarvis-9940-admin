@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 
 import Container from 'Component/Global/Container'
@@ -18,10 +18,23 @@ const Edit = () => {
 		encounters,
 		encounterTemplates,
 	} = useSelector(state => state.data)
-	// TODO: Set Activity and Encounter to null when switching Game
+
+	const prevSelectedGameRef = useRef()
 	const [selectedGame, setSelectedGame] = useState(null)
 	const [selectedActivity, setSelectedActivity] = useState(null)
 	const [selectedEncounter, setSelectedEncounter] = useState(null)
+
+	useEffect(() => {
+		prevSelectedGameRef.current = selectedGame
+	})
+	const prevSelectedGame = prevSelectedGameRef.current
+
+	useEffect(() => {
+		if (selectedGame && selectedGame !== prevSelectedGame) {
+			setSelectedActivity(null)
+			setSelectedEncounter(null)
+		}
+	}, [selectedGame])
 
 	return (
 		<Container>

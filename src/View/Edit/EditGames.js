@@ -5,6 +5,7 @@ import safeNanoid from 'Function/safeNanoid'
 import { writeData } from 'Store/Feature/data'
 
 import Button from 'Component/Global/Button'
+import { ModalContainer, ModalContents } from 'Component/Global/Modal'
 
 const EditGames = props => {
 	const dispatch = useDispatch()
@@ -62,71 +63,73 @@ const EditGames = props => {
 				</Button>
 			</div>
 			{isAdding && (
-				<div>
-					<h3>Add game</h3>
-					<div>
-						<p>
-							Name:{' '}
-							<input
-								type="text"
-								value={name}
-								onChange={e => {
-									setName(e.target.value)
+				<ModalContainer>
+					<ModalContents>
+						<h3>Add game</h3>
+						<div>
+							<p>
+								Name:{' '}
+								<input
+									type="text"
+									value={name}
+									onChange={e => {
+										setName(e.target.value)
+									}}
+								/>
+							</p>
+							<p>
+								Has PvE:{' '}
+								<input
+									type="checkbox"
+									checked={hasPve}
+									onChange={() => {
+										setHasPve(!hasPve)
+									}}
+								/>
+							</p>
+							<p>
+								Has PvP:{' '}
+								<input
+									type="checkbox"
+									checked={hasPvp}
+									onChange={() => {
+										setHasPvp(!hasPvp)
+									}}
+								/>
+							</p>
+							<p>
+								Is active:{' '}
+								<input
+									type="checkbox"
+									checked={isActive}
+									onChange={() => {
+										setIsActive(!isActive)
+									}}
+								/>
+							</p>
+						</div>
+						<div>
+							<Button
+								type="button"
+								variant="cancel"
+								onClick={() => {
+									setIsAdding(false)
 								}}
-							/>
-						</p>
-						<p>
-							Has PvE:{' '}
-							<input
-								type="checkbox"
-								checked={hasPve}
-								onChange={() => {
-									setHasPve(!hasPve)
+							>
+								Cancel
+							</Button>
+							<Button
+								type="button"
+								variant="add"
+								onClick={() => {
+									submit()
 								}}
-							/>
-						</p>
-						<p>
-							Has PvP:{' '}
-							<input
-								type="checkbox"
-								checked={hasPvp}
-								onChange={() => {
-									setHasPvp(!hasPvp)
-								}}
-							/>
-						</p>
-						<p>
-							Is active:{' '}
-							<input
-								type="checkbox"
-								checked={isActive}
-								onChange={() => {
-									setIsActive(!isActive)
-								}}
-							/>
-						</p>
-					</div>
-					<div>
-						<Button
-							type="button"
-							variant="cancel"
-							onClick={() => {
-								setIsAdding(false)
-							}}
-						>
-							Cancel
-						</Button>
-						<Button
-							type="button"
-							variant="add"
-							onClick={() => {
-								submit()
-							}}
-						>
-							Add
-						</Button>
-					</div>
-				</div>
+							>
+								Add
+							</Button>
+						</div>
+					</ModalContents>
+				</ModalContainer>
 			)}
 		</div>
 	)

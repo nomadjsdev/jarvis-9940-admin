@@ -5,6 +5,7 @@ import safeNanoid from 'Function/safeNanoid'
 import { writeData } from 'Store/Feature/data'
 
 import Button from 'Component/Global/Button'
+import { ModalContainer, ModalContents } from 'Component/Global/Modal'
 
 const EditEncounters = props => {
 	const dispatch = useDispatch()
@@ -72,51 +73,53 @@ const EditEncounters = props => {
 				</Button>
 			</div>
 			{isAdding && (
-				<div>
-					<h3>Add game</h3>
-					<div>
-						<p>
-							Name:{' '}
-							<input
-								type="text"
-								value={name}
-								onChange={e => {
-									setName(e.target.value)
+				<ModalContainer>
+					<ModalContents>
+						<h3>Add encounter</h3>
+						<div>
+							<p>
+								Name:{' '}
+								<input
+									type="text"
+									value={name}
+									onChange={e => {
+										setName(e.target.value)
+									}}
+								/>
+							</p>
+							<p>
+								Is active:{' '}
+								<input
+									type="checkbox"
+									checked={isActive}
+									onChange={() => {
+										setIsActive(!isActive)
+									}}
+								/>
+							</p>
+						</div>
+						<div>
+							<Button
+								type="button"
+								variant="cancel"
+								onClick={() => {
+									setIsAdding(false)
 								}}
-							/>
-						</p>
-						<p>
-							Is active:{' '}
-							<input
-								type="checkbox"
-								checked={isActive}
-								onChange={() => {
-									setIsActive(!isActive)
+							>
+								Cancel
+							</Button>
+							<Button
+								type="button"
+								variant="add"
+								onClick={() => {
+									submit()
 								}}
-							/>
-						</p>
-					</div>
-					<div>
-						<Button
-							type="button"
-							variant="cancel"
-							onClick={() => {
-								setIsAdding(false)
-							}}
-						>
-							Cancel
-						</Button>
-						<Button
-							type="button"
-							variant="add"
-							onClick={() => {
-								submit()
-							}}
-						>
-							Add
-						</Button>
-					</div>
-				</div>
+							>
+								Add
+							</Button>
+						</div>
+					</ModalContents>
+				</ModalContainer>
 			)}
 		</div>
 	)
