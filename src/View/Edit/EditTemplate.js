@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { ToggleButton, ButtonGroup } from 'jarvis9940-components'
+import { ToggleButton, MessageButton, TimerButton, ButtonGroup } from 'jarvis9940-components'
 
 import safeNanoid from 'Function/safeNanoid'
 import { writeData } from 'Store/Feature/data'
@@ -81,6 +81,51 @@ const EditTemplate = props => {
 										id: safeNanoid(),
 										text: '',
 										type: 'toggle',
+									})
+									setTemplate(newTemplate)
+									setAddRow(null)
+									setAddCol(null)
+									setIsAdding(false)
+								}}
+							>
+								Add
+							</Button>
+						</div>
+						<div style={{ border: '1px solid green' }}>
+							<p>Add single message button</p>
+							<Button
+								type="button"
+								variant="add"
+								onClick={() => {
+									let newTemplate = deepCopyArray(template)
+									newTemplate[addRow][addCol].push({
+										id: safeNanoid(),
+										text: '',
+										message: '',
+										type: 'message',
+									})
+									setTemplate(newTemplate)
+									setAddRow(null)
+									setAddCol(null)
+									setIsAdding(false)
+								}}
+							>
+								Add
+							</Button>
+						</div>
+						<div style={{ border: '1px solid green' }}>
+							<p>Add single timer button</p>
+							<Button
+								type="button"
+								variant="add"
+								onClick={() => {
+									let newTemplate = deepCopyArray(template)
+									newTemplate[addRow][addCol].push({
+										id: safeNanoid(),
+										text: '',
+										message: '',
+										time: 0,
+										type: 'timer',
 									})
 									setTemplate(newTemplate)
 									setAddRow(null)
@@ -187,15 +232,61 @@ const EditTemplate = props => {
 				<ModalContainer>
 					<ModalContents>
 						<h2>Edit button text</h2>
-						{(values.buttonText || values?.buttonText === '') && (
+						{(values.toggleButtonText || values?.toggleButtonText === '') && (
 							<>
 								<p>
 									Update button label:
 									<input
 										type="text"
-										value={values.buttonText || ''}
+										value={values.toggleButtonText}
 										onChange={e => {
-											setValues({ buttonText: e.target.value })
+											setValues({ toggleButtonText: e.target.value })
+										}}
+									/>
+								</p>
+								<Button
+									type="button"
+									variant="add"
+									onClick={() => {
+										let newTemplate = deepCopyArray(template)
+										newTemplate[addRow][addCol][editButton].text = values.toggleButtonText
+										setTemplate(newTemplate)
+										setAddRow(null)
+										setAddCol(null)
+										setEditButton(null)
+										setIsEditingButton(false)
+										setValues({})
+									}}
+								>
+									Save
+								</Button>
+							</>
+						)}
+						{(values.message || values?.message === '') && (
+							<>
+								<p>
+									Update button label:
+									<input
+										type="text"
+										value={values.buttonText}
+										onChange={e => {
+											const { value } = e.target
+											setValues(prevState => {
+												return { ...prevState, buttonText: value }
+											})
+										}}
+									/>
+								</p>
+								<p>
+									Update button message:
+									<input
+										type="text"
+										value={values.message || ''}
+										onChange={e => {
+											const { value } = e.target
+											setValues(prevState => {
+												return { ...prevState, message: value }
+											})
 										}}
 									/>
 								</p>
@@ -205,6 +296,68 @@ const EditTemplate = props => {
 									onClick={() => {
 										let newTemplate = deepCopyArray(template)
 										newTemplate[addRow][addCol][editButton].text = values.buttonText
+										newTemplate[addRow][addCol][editButton].message = values.message
+										setTemplate(newTemplate)
+										setAddRow(null)
+										setAddCol(null)
+										setEditButton(null)
+										setIsEditingButton(false)
+										setValues({})
+									}}
+								>
+									Save
+								</Button>
+							</>
+						)}
+						{(values.time || values?.time === 0) && (
+							<>
+								<p>
+									Update button label:
+									<input
+										type="text"
+										value={values.buttonText}
+										onChange={e => {
+											const { value } = e.target
+											setValues(prevState => {
+												return { ...prevState, buttonText: value }
+											})
+										}}
+									/>
+								</p>
+								<p>
+									Update button time:
+									<input
+										type="text"
+										value={values.time}
+										onChange={e => {
+											const { value } = e.target
+											setValues(prevState => {
+												return { ...prevState, time: parseInt(value) }
+											})
+										}}
+									/>
+								</p>
+								<p>
+									Update button message:
+									<input
+										type="text"
+										value={values.timerMessage || ''}
+										onChange={e => {
+											const { value } = e.target
+											setValues(prevState => {
+												return { ...prevState, timerMessage: value }
+											})
+										}}
+									/>
+								</p>
+								<Button
+									type="button"
+									variant="add"
+									onClick={() => {
+										let newTemplate = deepCopyArray(template)
+										newTemplate[addRow][addCol][editButton].text = values.buttonText
+										newTemplate[addRow][addCol][editButton].message = values.timerMessage
+										newTemplate[addRow][addCol][editButton].time = values.time
 										setTemplate(newTemplate)
 										setAddRow(null)
 										setAddCol(null)
@@ -315,33 +468,52 @@ const EditTemplate = props => {
 					</ModalContents>
 				</ModalContainer>
 			)}
-			{!isEditing &&
-				encounterTemplates[selectedEncounter] &&
-				encounterTemplates[selectedEncounter].map((row, rowIndex) => {
-					return (
-						<Row key={rowIndex} style={{ display: 'flex', flexFlow: 'row nowrap' }}>
-							{row.map((col, colIndex) => {
-								return (
-									<div key={colIndex} style={{ flexBasis: `${(1 / row.length) * 100}%`, textAlign: 'center' }}>
-										{col.map((button, buttonIndex) => {
-											if (button.type === 'toggle') {
-												return (
-													<div key={buttonIndex}>
-														<ToggleButton id={button.id}>{button.text}</ToggleButton>
-													</div>
-												)
-											}
-											if (button.type === 'group') {
-												return <ButtonGroup key={buttonIndex} orientation={button.direction} buttons={button.buttons} />
-											}
-											return false
-										})}
-									</div>
-								)
-							})}
-						</Row>
-					)
-				})}
+			{!isEditing && (
+				<>
+					{encounterTemplates[selectedEncounter] &&
+						encounterTemplates[selectedEncounter].map((row, rowIndex) => {
+							return (
+								<Row key={rowIndex} style={{ display: 'flex', flexFlow: 'row nowrap' }}>
+									{row.map((col, colIndex) => {
+										return (
+											<div key={colIndex} style={{ flexBasis: `${(1 / row.length) * 100}%`, textAlign: 'center' }}>
+												{col.map((button, buttonIndex) => {
+													if (button.type === 'toggle') {
+														return (
+															<div key={buttonIndex}>
+																<ToggleButton id={button.id}>{button.text}</ToggleButton>
+															</div>
+														)
+													}
+													if (button.type === 'message') {
+														return (
+															<div key={buttonIndex}>
+																<MessageButton id={button.id}>{button.text}</MessageButton>
+															</div>
+														)
+													}
+													if (button.type === 'timer') {
+														return (
+															<div key={buttonIndex}>
+																<TimerButton id={button.id}>{button.text}</TimerButton>
+															</div>
+														)
+													}
+													if (button.type === 'group') {
+														return (
+															<ButtonGroup key={buttonIndex} orientation={button.direction} buttons={button.buttons} />
+														)
+													}
+													return false
+												})}
+											</div>
+										)
+									})}
+								</Row>
+							)
+						})}
+				</>
+			)}
 			{isEditing && (
 				<>
 					{template &&
@@ -374,7 +546,47 @@ const EditTemplate = props => {
 																						setAddRow(rowIndex)
 																						setAddCol(colIndex)
 																						setEditButton(buttonIndex)
-																						setValues({ buttonText: button.text || '' })
+																						setValues({ toggleButtonText: button.text || '' })
+																					}}
+																				>
+																					e
+																				</button>
+																			</div>
+																		)
+																	}
+																	if (button.type === 'message') {
+																		return (
+																			<div key={buttonIndex}>
+																				<MessageButton id={button.id}>{button.text}</MessageButton>
+																				<button
+																					onClick={() => {
+																						setIsEditingButton(true)
+																						setAddRow(rowIndex)
+																						setAddCol(colIndex)
+																						setEditButton(buttonIndex)
+																						setValues({ buttonText: button.text || '', message: button.message || '' })
+																					}}
+																				>
+																					e
+																				</button>
+																			</div>
+																		)
+																	}
+																	if (button.type === 'timer') {
+																		return (
+																			<div key={buttonIndex}>
+																				<TimerButton id={button.id}>{button.text}</TimerButton>
+																				<button
+																					onClick={() => {
+																						setIsEditingButton(true)
+																						setAddRow(rowIndex)
+																						setAddCol(colIndex)
+																						setEditButton(buttonIndex)
+																						setValues({
+																							buttonText: button.text || '',
+																							timerMessage: button.message || '',
+																							time: button.time || 0,
+																						})
 																					}}
 																				>
 																					e
@@ -436,7 +648,6 @@ const EditTemplate = props => {
 																borderRadius: '5px',
 															}}
 															onClick={() => {
-																// FIXME: There's got to be a better way of doing this!
 																let newTemplate = deepCopyArray(template)
 																newTemplate[rowIndex].splice(colIndex, 1)
 																setTemplate(newTemplate)
@@ -460,7 +671,6 @@ const EditTemplate = props => {
 													borderRadius: '5px',
 												}}
 												onClick={() => {
-													// FIXME: There's got to be a better way of doing this!
 													let newTemplate = deepCopyArray(template)
 													newTemplate[rowIndex].push([])
 													setTemplate(newTemplate)
@@ -481,7 +691,6 @@ const EditTemplate = props => {
 											borderRadius: '5px',
 										}}
 										onClick={() => {
-											// FIXME: There's got to be a better way of doing this!
 											let newTemplate = deepCopyArray(template)
 											newTemplate.splice(rowIndex, 1)
 											setTemplate(newTemplate)
@@ -506,7 +715,6 @@ const EditTemplate = props => {
 									borderRadius: '5px',
 								}}
 								onClick={() => {
-									// FIXME: There's got to be a better way of doing this!
 									let newTemplate = deepCopyArray(template)
 									newTemplate.push([])
 									setTemplate(newTemplate)
