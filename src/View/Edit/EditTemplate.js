@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+// TODO: Refactor this to a more readable size!
+import React, { useState, useRef, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { ToggleButton, MessageButton, TimerButton, ButtonGroup } from 'jarvis9940-components'
 
@@ -26,6 +27,24 @@ const EditTemplate = props => {
 		return encounterTemplates[selectedEncounter] ?? []
 	}
 	const [template, setTemplate] = useState(resetTemplate())
+
+	const prevSelectedEncounterRef = useRef()
+	useEffect(() => {
+		prevSelectedEncounterRef.current = selectedEncounter
+	})
+	const prevSelectedEncounter = prevSelectedEncounterRef.current
+
+	useEffect(() => {
+		if (selectedEncounter && selectedEncounter !== prevSelectedEncounter) {
+			setTemplate(resetTemplate())
+			setIsEditing(false)
+			setAddRow(null)
+			setAddCol(null)
+			setEditButton(null)
+			setIsEditingButton(false)
+			setValues({})
+		}
+	}, [selectedEncounter])
 
 	// This is a quick-and-dirty deep clone of the template nested array
 	// FIXME: There's got to be a better way of doing this!

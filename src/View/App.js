@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-d
 import { useSelector } from 'react-redux'
 
 import Home from 'View/Home'
-import Register from 'View/Register'
 import PasswordReset from 'View/PasswordReset'
 import Login from 'View/Login'
 import Edit from 'View/Edit'
@@ -67,7 +66,6 @@ const App = () => {
 			<Router>
 				<Navbar />
 				<Switch>
-					<Route path="/register">{isAuthenticated ? <Redirect to="/" /> : <Register />}</Route>
 					<Route path="/passwordreset">{isAuthenticated ? <Redirect to="/" /> : <PasswordReset />}</Route>
 					<Route path="/login">{isAuthenticated ? <Redirect to="/" /> : <Login />}</Route>
 					<Route path="/edit">{isAuthenticated ? <Edit /> : <Redirect to="/login" />}</Route>

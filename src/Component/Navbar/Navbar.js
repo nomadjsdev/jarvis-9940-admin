@@ -18,7 +18,7 @@ const Navbar = () => {
 
 const NavbarDefault = () => (
 	<>
-		<NavLink to="/register">Register</NavLink> | <NavLink to="/login">Login</NavLink>
+		<NavLink to="/login">Login</NavLink>
 	</>
 )
 

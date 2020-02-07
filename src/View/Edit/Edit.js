@@ -19,11 +19,11 @@ const Edit = () => {
 		encounterTemplates,
 	} = useSelector(state => state.data)
 
-	const prevSelectedGameRef = useRef()
 	const [selectedGame, setSelectedGame] = useState(null)
 	const [selectedActivity, setSelectedActivity] = useState(null)
 	const [selectedEncounter, setSelectedEncounter] = useState(null)
 
+	const prevSelectedGameRef = useRef()
 	useEffect(() => {
 		prevSelectedGameRef.current = selectedGame
 	})
@@ -36,9 +36,22 @@ const Edit = () => {
 		}
 	}, [selectedGame])
 
+	const prevSelectedActivityRef = useRef()
+	useEffect(() => {
+		prevSelectedActivityRef.current = selectedActivity
+	})
+	const prevSelectedActivity = prevSelectedActivityRef.current
+
+	useEffect(() => {
+		if (selectedActivity && selectedActivity !== prevSelectedActivity) {
+			setSelectedEncounter(null)
+		}
+	}, [selectedActivity])
+
 	return (
 		<Container>
 			<h1>Edit</h1>
+
 			{games && <EditGames games={games} selectedGame={selectedGame} setSelectedGame={setSelectedGame} />}
 
 			{games && selectedGame && (
@@ -62,6 +75,7 @@ const Edit = () => {
 					setSelectedEncounter={setSelectedEncounter}
 				/>
 			)}
+
 			{encounterTemplates && selectedEncounter && (
 				<EditTemplate encounterTemplates={encounterTemplates} selectedEncounter={selectedEncounter} />
 			)}
