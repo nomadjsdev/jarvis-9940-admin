@@ -10,7 +10,7 @@ const Login = () => {
 	const loginError = useSelector(state => state.auth.loginError)
 
 	return (
-		<>
+		<React.Fragment>
 			<h1>Login</h1>
 			<Formik
 				initialValues={{ email: '', password: '' }}
@@ -46,9 +46,9 @@ const Login = () => {
 			</Formik>
 			<div>
 				{loginError && (
-					<>
+					<React.Fragment>
 						<p>{loginError}</p>
-					</>
+					</React.Fragment>
 				)}
 			</div>
 			<p>
@@ -57,7 +57,7 @@ const Login = () => {
 			<p>
 				Forgot your password? <Link to="/passwordreset">Reset it here.</Link>
 			</p>
-		</>
+		</React.Fragment>
 	)
 }
 

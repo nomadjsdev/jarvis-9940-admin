@@ -1,4 +1,9 @@
 // TODO: Refactor this to a more readable size!
+// TODO: Add optional column titles to buttonGroup
+// TODO: Add alignment to buttons (top bottom left right)
+// TODO: Allow symbols on buttons, instead of text?
+// TODO: Allow both symbols and text on buttons?
+
 import React, { useState, useRef, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { ToggleButton, MessageButton, TimerButton, ButtonGroup } from 'jarvis9940-components'
@@ -18,6 +23,7 @@ const EditTemplate = props => {
 	const [addRow, setAddRow] = useState(null)
 	const [addCol, setAddCol] = useState(null)
 	const [values, setValues] = useState({})
+	// console.log('TCL: values', values)
 
 	const [isEditing, setIsEditing] = useState(false)
 	const [isEditingButton, setIsEditingButton] = useState(false)
@@ -250,16 +256,57 @@ const EditTemplate = props => {
 			{isEditingButton && (
 				<ModalContainer>
 					<ModalContents>
-						<h2>Edit button text</h2>
-						{(values.toggleButtonText || values?.toggleButtonText === '') && (
-							<>
+						<h2>Edit button</h2>
+						{isEditingButton === 'toggle' && (
+							<React.Fragment>
 								<p>
 									Update button label:
 									<input
 										type="text"
-										value={values.toggleButtonText}
+										value={values.text}
 										onChange={e => {
-											setValues({ toggleButtonText: e.target.value })
+											setValues(prevState => {
+												return { ...prevState, text: e.target.value }
+											})
+										}}
+									/>
+								</p>
+								<p>
+									Update button alignment:
+									<label htmlFor="toggle-alignment-left">Left</label>
+									<input
+										id="toggle-alignment-left"
+										type="radio"
+										name="toggle-alignment"
+										checked={values.alignment === 'left'}
+										onChange={() => {
+											setValues(prevState => {
+												return { ...prevState, alignment: 'left' }
+											})
+										}}
+									/>
+									<label htmlFor="toggle-alignment-center">Center</label>
+									<input
+										id="toggle-alignment-center"
+										type="radio"
+										name="toggle-alignment"
+										checked={values.alignment === 'center'}
+										onChange={() => {
+											setValues(prevState => {
+												return { ...prevState, alignment: 'center' }
+											})
+										}}
+									/>
+									<label htmlFor="toggle-alignment-right">Right</label>
+									<input
+										id="toggle-alignment-right"
+										type="radio"
+										name="toggle-alignment"
+										checked={values.alignment === 'right'}
+										onChange={() => {
+											setValues(prevState => {
+												return { ...prevState, alignment: 'right' }
+											})
 										}}
 									/>
 								</p>
@@ -268,7 +315,8 @@ const EditTemplate = props => {
 									variant="add"
 									onClick={() => {
 										let newTemplate = deepCopyArray(template)
-										newTemplate[addRow][addCol][editButton].text = values.toggleButtonText
+										newTemplate[addRow][addCol][editButton].text = values.text
+										newTemplate[addRow][addCol][editButton].alignment = values.alignment
 										setTemplate(newTemplate)
 										setAddRow(null)
 										setAddCol(null)
@@ -279,19 +327,19 @@ const EditTemplate = props => {
 								>
 									Save
 								</Button>
-							</>
+							</React.Fragment>
 						)}
-						{(values.message || values?.message === '') && (
-							<>
+						{isEditingButton === 'message' && (
+							<React.Fragment>
 								<p>
 									Update button label:
 									<input
 										type="text"
-										value={values.buttonText}
+										value={values.text}
 										onChange={e => {
 											const { value } = e.target
 											setValues(prevState => {
-												return { ...prevState, buttonText: value }
+												return { ...prevState, text: value }
 											})
 										}}
 									/>
@@ -309,13 +357,53 @@ const EditTemplate = props => {
 										}}
 									/>
 								</p>
+								<p>
+									Update button alignment:
+									<label htmlFor="message-alignment-left">Left</label>
+									<input
+										id="message-alignment-left"
+										type="radio"
+										name="message-alignment"
+										checked={values.alignment === 'left'}
+										onChange={() => {
+											setValues(prevState => {
+												return { ...prevState, alignment: 'left' }
+											})
+										}}
+									/>
+									<label htmlFor="message-alignment-center">Center</label>
+									<input
+										id="message-alignment-center"
+										type="radio"
+										name="message-alignment"
+										checked={values.alignment === 'center'}
+										onChange={() => {
+											setValues(prevState => {
+												return { ...prevState, alignment: 'center' }
+											})
+										}}
+									/>
+									<label htmlFor="message-alignment-right">Right</label>
+									<input
+										id="message-alignment-right"
+										type="radio"
+										name="message-alignment"
+										checked={values.alignment === 'right'}
+										onChange={() => {
+											setValues(prevState => {
+												return { ...prevState, alignment: 'right' }
+											})
+										}}
+									/>
+								</p>
 								<Button
 									type="button"
 									variant="add"
 									onClick={() => {
 										let newTemplate = deepCopyArray(template)
-										newTemplate[addRow][addCol][editButton].text = values.buttonText
+										newTemplate[addRow][addCol][editButton].text = values.text
 										newTemplate[addRow][addCol][editButton].message = values.message
+										newTemplate[addRow][addCol][editButton].alignment = values.alignment
 										setTemplate(newTemplate)
 										setAddRow(null)
 										setAddCol(null)
@@ -326,19 +414,20 @@ const EditTemplate = props => {
 								>
 									Save
 								</Button>
-							</>
+							</React.Fragment>
 						)}
-						{(values.time || values?.time === 0) && (
-							<>
+						{isEditingButton === 'timer' && (
+							// TODO: Allow multiple messages on different timers
+							<React.Fragment>
 								<p>
 									Update button label:
 									<input
 										type="text"
-										value={values.buttonText}
+										value={values.text}
 										onChange={e => {
 											const { value } = e.target
 											setValues(prevState => {
-												return { ...prevState, buttonText: value }
+												return { ...prevState, text: value }
 											})
 										}}
 									/>
@@ -357,14 +446,65 @@ const EditTemplate = props => {
 									/>
 								</p>
 								<p>
+									Show timer:
+									<input
+										type="checkbox"
+										checked={values.showTime === true}
+										onChange={() => {
+											setValues(prevState => {
+												return { ...prevState, showTime: !prevState.showTime }
+											})
+										}}
+									/>
+								</p>
+								<p>
 									Update button message:
 									<input
 										type="text"
-										value={values.timerMessage || ''}
+										value={values.message || ''}
 										onChange={e => {
 											const { value } = e.target
 											setValues(prevState => {
-												return { ...prevState, timerMessage: value }
+												return { ...prevState, message: value }
+											})
+										}}
+									/>
+								</p>
+								<p>
+									Update button alignment:
+									<label htmlFor="timer-alignment-left">Left</label>
+									<input
+										id="timer-alignment-left"
+										type="radio"
+										name="timer-alignment"
+										checked={values.alignment === 'left'}
+										onChange={() => {
+											setValues(prevState => {
+												return { ...prevState, alignment: 'left' }
+											})
+										}}
+									/>
+									<label htmlFor="timer-alignment-center">Center</label>
+									<input
+										id="timer-alignment-center"
+										type="radio"
+										name="timer-alignment"
+										checked={values.alignment === 'center'}
+										onChange={() => {
+											setValues(prevState => {
+												return { ...prevState, alignment: 'center' }
+											})
+										}}
+									/>
+									<label htmlFor="timer-alignment-right">Right</label>
+									<input
+										id="timer-alignment-right"
+										type="radio"
+										name="timer-alignment"
+										checked={values.alignment === 'right'}
+										onChange={() => {
+											setValues(prevState => {
+												return { ...prevState, alignment: 'right' }
 											})
 										}}
 									/>
@@ -374,9 +514,11 @@ const EditTemplate = props => {
 									variant="add"
 									onClick={() => {
 										let newTemplate = deepCopyArray(template)
-										newTemplate[addRow][addCol][editButton].text = values.buttonText
-										newTemplate[addRow][addCol][editButton].message = values.timerMessage
+										newTemplate[addRow][addCol][editButton].text = values.text
+										newTemplate[addRow][addCol][editButton].message = values.message
 										newTemplate[addRow][addCol][editButton].time = values.time
+										newTemplate[addRow][addCol][editButton].showTime = values.showTime
+										newTemplate[addRow][addCol][editButton].alignment = values.alignment
 										setTemplate(newTemplate)
 										setAddRow(null)
 										setAddCol(null)
@@ -387,10 +529,10 @@ const EditTemplate = props => {
 								>
 									Save
 								</Button>
-							</>
+							</React.Fragment>
 						)}
-						{values.buttons && (
-							<>
+						{isEditingButton === 'group' && (
+							<React.Fragment>
 								{values.buttons.map((button, index) => (
 									<p key={button.id}>
 										Update button label:
@@ -408,31 +550,66 @@ const EditTemplate = props => {
 								))}
 								<p>
 									Update direction:
-									<label htmlFor="editVert">Vertical</label>
+									<label htmlFor="group-direction-vertical">Vertical</label>
 									<input
 										type="radio"
 										name="direction"
-										id="editVert"
-										value="vertical"
+										id="group-direction-vertical"
 										checked={values.direction === 'vertical'}
-										onChange={e => {
-											const { value } = e.target
+										onChange={() => {
 											setValues(prevState => {
-												return { ...prevState, direction: value }
+												return { ...prevState, direction: 'vertical' }
 											})
 										}}
 									/>
-									<label htmlFor="editHori">Horizontal</label>
+									<label htmlFor="group-direction-horizontal">Horizontal</label>
 									<input
 										type="radio"
 										name="direction"
-										id="editHori"
-										value="horizontal"
+										id="group-direction-horizontal"
 										checked={values.direction === 'horizontal'}
-										onChange={e => {
-											const { value } = e.target
+										onChange={() => {
 											setValues(prevState => {
-												return { ...prevState, direction: value }
+												return { ...prevState, direction: 'horizontal' }
+											})
+										}}
+									/>
+								</p>
+								<p>
+									Update button alignment:
+									<label htmlFor="group-alignment-left">Left</label>
+									<input
+										id="group-alignment-left"
+										type="radio"
+										name="group-alignment"
+										checked={values.alignment === 'left'}
+										onChange={() => {
+											setValues(prevState => {
+												return { ...prevState, alignment: 'left' }
+											})
+										}}
+									/>
+									<label htmlFor="group-alignment-center">Center</label>
+									<input
+										id="group-alignment-center"
+										type="radio"
+										name="group-alignment"
+										checked={values.alignment === 'center'}
+										onChange={() => {
+											setValues(prevState => {
+												return { ...prevState, alignment: 'center' }
+											})
+										}}
+									/>
+									<label htmlFor="group-alignment-right">Right</label>
+									<input
+										id="group-alignment-right"
+										type="radio"
+										name="group-alignment"
+										checked={values.alignment === 'right'}
+										onChange={() => {
+											setValues(prevState => {
+												return { ...prevState, alignment: 'right' }
 											})
 										}}
 									/>
@@ -444,6 +621,7 @@ const EditTemplate = props => {
 										let newTemplate = deepCopyArray(template)
 										newTemplate[addRow][addCol][editButton].buttons = values.buttons
 										newTemplate[addRow][addCol][editButton].direction = values.direction
+										newTemplate[addRow][addCol][editButton].alignment = values.alignment
 										setTemplate(newTemplate)
 										setAddRow(null)
 										setAddCol(null)
@@ -454,7 +632,7 @@ const EditTemplate = props => {
 								>
 									Save
 								</Button>
-							</>
+							</React.Fragment>
 						)}
 						<Button
 							variant="cancel"
@@ -488,7 +666,7 @@ const EditTemplate = props => {
 				</ModalContainer>
 			)}
 			{!isEditing && (
-				<>
+				<React.Fragment>
 					{encounterTemplates[selectedEncounter] &&
 						encounterTemplates[selectedEncounter].map((row, rowIndex) => {
 							return (
@@ -500,27 +678,38 @@ const EditTemplate = props => {
 													if (button.type === 'toggle') {
 														return (
 															<div key={buttonIndex}>
-																<ToggleButton id={button.id}>{button.text}</ToggleButton>
+																<ToggleButton id={button.id} alignment={button.alignment}>
+																	{button.text}
+																</ToggleButton>
 															</div>
 														)
 													}
 													if (button.type === 'message') {
 														return (
 															<div key={buttonIndex}>
-																<MessageButton id={button.id}>{button.text}</MessageButton>
+																<MessageButton id={button.id} alignment={button.alignment}>
+																	{button.text}
+																</MessageButton>
 															</div>
 														)
 													}
 													if (button.type === 'timer') {
 														return (
 															<div key={buttonIndex}>
-																<TimerButton id={button.id}>{button.text}</TimerButton>
+																<TimerButton id={button.id} alignment={button.alignment}>
+																	{button.text}
+																</TimerButton>
 															</div>
 														)
 													}
 													if (button.type === 'group') {
 														return (
-															<ButtonGroup key={buttonIndex} orientation={button.direction} buttons={button.buttons} />
+															<ButtonGroup
+																key={buttonIndex}
+																orientation={button.direction}
+																alignment={button.alignment}
+																buttons={button.buttons}
+															/>
 														)
 													}
 													return false
@@ -531,10 +720,10 @@ const EditTemplate = props => {
 								</Row>
 							)
 						})}
-				</>
+				</React.Fragment>
 			)}
 			{isEditing && (
-				<>
+				<React.Fragment>
 					{template &&
 						template.map((row, rowIndex) => {
 							return (
@@ -558,14 +747,19 @@ const EditTemplate = props => {
 																	if (button.type === 'toggle') {
 																		return (
 																			<div key={buttonIndex}>
-																				<ToggleButton id={button.id}>{button.text}</ToggleButton>
+																				<ToggleButton id={button.id} alignment={button.alignment}>
+																					{button.text}
+																				</ToggleButton>
 																				<button
 																					onClick={() => {
-																						setIsEditingButton(true)
+																						setIsEditingButton('toggle')
 																						setAddRow(rowIndex)
 																						setAddCol(colIndex)
 																						setEditButton(buttonIndex)
-																						setValues({ toggleButtonText: button.text || '' })
+																						setValues({
+																							text: button.text || '',
+																							alignment: button.alignment || 'center',
+																						})
 																					}}
 																				>
 																					e
@@ -576,14 +770,20 @@ const EditTemplate = props => {
 																	if (button.type === 'message') {
 																		return (
 																			<div key={buttonIndex}>
-																				<MessageButton id={button.id}>{button.text}</MessageButton>
+																				<MessageButton id={button.id} alignment={button.alignment}>
+																					{button.text}
+																				</MessageButton>
 																				<button
 																					onClick={() => {
-																						setIsEditingButton(true)
+																						setIsEditingButton('message')
 																						setAddRow(rowIndex)
 																						setAddCol(colIndex)
 																						setEditButton(buttonIndex)
-																						setValues({ buttonText: button.text || '', message: button.message || '' })
+																						setValues({
+																							text: button.text || '',
+																							message: button.message || '',
+																							alignment: button.alignment || 'center',
+																						})
 																					}}
 																				>
 																					e
@@ -594,17 +794,21 @@ const EditTemplate = props => {
 																	if (button.type === 'timer') {
 																		return (
 																			<div key={buttonIndex}>
-																				<TimerButton id={button.id}>{button.text}</TimerButton>
+																				<TimerButton id={button.id} alignment={button.alignment}>
+																					{button.text}
+																				</TimerButton>
 																				<button
 																					onClick={() => {
-																						setIsEditingButton(true)
+																						setIsEditingButton('timer')
 																						setAddRow(rowIndex)
 																						setAddCol(colIndex)
 																						setEditButton(buttonIndex)
 																						setValues({
-																							buttonText: button.text || '',
-																							timerMessage: button.message || '',
+																							text: button.text || '',
+																							message: button.message || '',
 																							time: button.time || 0,
+																							showTime: button.showTime || false,
+																							alignment: button.alignment || 'center',
 																						})
 																					}}
 																				>
@@ -616,14 +820,22 @@ const EditTemplate = props => {
 																	if (button.type === 'group') {
 																		return (
 																			<div key={buttonIndex}>
-																				<ButtonGroup orientation={button.direction} buttons={button.buttons} />
+																				<ButtonGroup
+																					orientation={button.direction}
+																					alignment={button.alignment}
+																					buttons={button.buttons}
+																				/>
 																				<button
 																					onClick={() => {
-																						setIsEditingButton(true)
+																						setIsEditingButton('group')
 																						setAddRow(rowIndex)
 																						setAddCol(colIndex)
 																						setEditButton(buttonIndex)
-																						setValues({ buttons: button.buttons, direction: button.direction })
+																						setValues({
+																							buttons: button.buttons,
+																							direction: button.direction,
+																							alignment: button.alignment || 'center',
+																						})
 																					}}
 																				>
 																					e
@@ -720,7 +932,7 @@ const EditTemplate = props => {
 								</div>
 							)
 						})}
-					<>
+					<React.Fragment>
 						<div>
 							<button
 								type="button"
@@ -742,8 +954,8 @@ const EditTemplate = props => {
 								Add row
 							</button>
 						</div>
-					</>
-				</>
+					</React.Fragment>
+				</React.Fragment>
 			)}
 		</div>
 	)

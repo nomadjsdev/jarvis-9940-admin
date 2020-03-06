@@ -17,9 +17,9 @@ const Navbar = () => {
 }
 
 const NavbarDefault = () => (
-	<>
+	<React.Fragment>
 		<NavLink to="/login">Login</NavLink>
-	</>
+	</React.Fragment>
 )
 
 const NavbarAuth = () => {
@@ -27,7 +27,7 @@ const NavbarAuth = () => {
 	const details = useSelector(state => state.user.details)
 
 	return (
-		<>
+		<React.Fragment>
 			<NavLink to="/edit">Edit encounters</NavLink> | <NavLink to="/admin">Admin users</NavLink>
 			<button
 				type="button"
@@ -38,7 +38,7 @@ const NavbarAuth = () => {
 				Logout
 			</button>
 			<span>{details.username}</span>
-		</>
+		</React.Fragment>
 	)
 }
 
