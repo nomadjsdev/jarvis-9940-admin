@@ -17,7 +17,7 @@ export const writeData = data => dispatch => {
 
 	// `type` should be the target path e.g. `games`
 	const { type, id, contents } = data
-	const typeCache = JSON.parse(localStorage.getItem(`cache-${type}`))
+	const typeCache = JSON.parse(localStorage.getItem(`admin-cache-${type}`))
 	const updatedTypeCache = {
 		data: { ...typeCache.data, [id]: contents },
 		timestamp: Math.floor(Date.now() / 1000),
@@ -28,7 +28,7 @@ export const writeData = data => dispatch => {
 		.ref(`${type}/${id}`)
 		.set(contents)
 		.then(() => {
-			localStorage.setItem(`cache-${type}`, JSON.stringify(updatedTypeCache))
+			localStorage.setItem(`admin-cache-${type}`, JSON.stringify(updatedTypeCache))
 			dispatch(receiveWriteData(data))
 		})
 		.catch(error => {
@@ -50,7 +50,7 @@ export const fetchData = () => dispatch => {
 export const fetch = type => dispatch => {
 	dispatch(requestLoadData())
 
-	const typeCache = JSON.parse(localStorage.getItem(`cache-${type}`))
+	const typeCache = JSON.parse(localStorage.getItem(`admin-cache-${type}`))
 	const timeNow = Math.floor(Date.now() / 1000)
 	if (typeCache && timeNow - typeCache.timestamp < MAX_CACHE_AGE) {
 		dispatch(receiveLoadData({ type, data: typeCache.data }))
@@ -61,7 +61,7 @@ export const fetch = type => dispatch => {
 			.once('value')
 			.then(snapshot => {
 				localStorage.setItem(
-					`cache-${type}`,
+					`admin-cache-${type}`,
 					JSON.stringify({ data: snapshot.val(), timestamp: Math.floor(Date.now() / 1000) }),
 				)
 				dispatch(receiveLoadData({ type, data: snapshot.val() }))

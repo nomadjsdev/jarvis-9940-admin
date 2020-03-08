@@ -1,6 +1,5 @@
 // TODO: Refactor this to a more readable size!
-// TODO: Add optional column titles to buttonGroup
-// TODO: Add alignment to buttons (top bottom left right)
+// TODO: Add alignment to buttons (top bottom)
 // TODO: Allow symbols on buttons, instead of text?
 // TODO: Allow both symbols and text on buttons?
 
@@ -23,7 +22,6 @@ const EditTemplate = props => {
 	const [addRow, setAddRow] = useState(null)
 	const [addCol, setAddCol] = useState(null)
 	const [values, setValues] = useState({})
-	// console.log('TCL: values', values)
 
 	const [isEditing, setIsEditing] = useState(false)
 	const [isEditingButton, setIsEditingButton] = useState(false)
@@ -417,7 +415,6 @@ const EditTemplate = props => {
 							</React.Fragment>
 						)}
 						{isEditingButton === 'timer' && (
-							// TODO: Allow multiple messages on different timers
 							<React.Fragment>
 								<p>
 									Update button label:
@@ -432,44 +429,80 @@ const EditTemplate = props => {
 										}}
 									/>
 								</p>
-								<p>
-									Update button time:
-									<input
-										type="text"
-										value={values.time}
-										onChange={e => {
-											const { value } = e.target
-											setValues(prevState => {
-												return { ...prevState, time: parseInt(value) }
-											})
-										}}
-									/>
-								</p>
-								<p>
-									Show timer:
-									<input
-										type="checkbox"
-										checked={values.showTime === true}
-										onChange={() => {
-											setValues(prevState => {
-												return { ...prevState, showTime: !prevState.showTime }
-											})
-										}}
-									/>
-								</p>
-								<p>
-									Update button message:
-									<input
-										type="text"
-										value={values.message || ''}
-										onChange={e => {
-											const { value } = e.target
-											setValues(prevState => {
-												return { ...prevState, message: value }
-											})
-										}}
-									/>
-								</p>
+								{values.messages.map((content, index) => {
+									return (
+										<div key={index} style={{ display: 'flex', flexFlow: 'row nowrap' }}>
+											<p>
+												Update button message:
+												<input
+													type="text"
+													value={content.message || ''}
+													onChange={e => {
+														const { value } = e.target
+														let messages = deepCopyArray(values.messages)
+														messages[index].message = value
+														setValues(prevState => {
+															return { ...prevState, messages: messages }
+														})
+													}}
+												/>
+											</p>
+											<p>
+												Update button time:
+												<input
+													type="text"
+													value={content.time}
+													onChange={e => {
+														const { value } = e.target
+														let messages = deepCopyArray(values.messages)
+														messages[index].time = parseInt(value || 0)
+														setValues(prevState => {
+															return { ...prevState, messages: messages }
+														})
+													}}
+												/>
+											</p>
+											<p>
+												Show timer:
+												<input
+													type="checkbox"
+													checked={content.showTime === true}
+													onChange={() => {
+														let messages = deepCopyArray(values.messages)
+														messages[index].showTime = !messages[index].showTime
+														setValues(prevState => {
+															return { ...prevState, messages: messages }
+														})
+													}}
+												/>
+											</p>
+											<button
+												type="button"
+												onClick={() => {
+													let messages = deepCopyArray(values.messages)
+													messages.splice(index, 1)
+													setValues(prevState => {
+														return { ...prevState, messages: messages }
+													})
+												}}
+											>
+												Delete
+											</button>
+										</div>
+									)
+								})}
+								<button
+									type="button"
+									onClick={() => {
+										let messages = deepCopyArray(values.messages)
+										messages.push({ message: '', time: 0, showTime: false })
+										setValues(prevState => {
+											return { ...prevState, messages: messages }
+										})
+									}}
+								>
+									Add message
+								</button>
 								<p>
 									Update button alignment:
 									<label htmlFor="timer-alignment-left">Left</label>
@@ -515,9 +548,7 @@ const EditTemplate = props => {
 									onClick={() => {
 										let newTemplate = deepCopyArray(template)
 										newTemplate[addRow][addCol][editButton].text = values.text
-										newTemplate[addRow][addCol][editButton].message = values.message
-										newTemplate[addRow][addCol][editButton].time = values.time
-										newTemplate[addRow][addCol][editButton].showTime = values.showTime
+										newTemplate[addRow][addCol][editButton].messages = values.messages
 										newTemplate[addRow][addCol][editButton].alignment = values.alignment
 										setTemplate(newTemplate)
 										setAddRow(null)
@@ -533,6 +564,17 @@ const EditTemplate = props => {
 						)}
 						{isEditingButton === 'group' && (
 							<React.Fragment>
+								<p>
+									Update group title:
+									<input
+										type="text"
+										value={values.title}
+										onChange={e => {
+											const { value } = e.target
+											setValues(prevState => ({ ...prevState, title: value }))
+										}}
+									/>
+								</p>
 								{values.buttons.map((button, index) => (
 									<p key={button.id}>
 										Update button label:
@@ -619,6 +661,7 @@ const EditTemplate = props => {
 									variant="add"
 									onClick={() => {
 										let newTemplate = deepCopyArray(template)
+										newTemplate[addRow][addCol][editButton].title = values.title
 										newTemplate[addRow][addCol][editButton].buttons = values.buttons
 										newTemplate[addRow][addCol][editButton].direction = values.direction
 										newTemplate[addRow][addCol][editButton].alignment = values.alignment
@@ -673,48 +716,55 @@ const EditTemplate = props => {
 								<Row key={rowIndex} style={{ display: 'flex', flexFlow: 'row nowrap' }}>
 									{row.map((col, colIndex) => {
 										return (
-											<div key={colIndex} style={{ flexBasis: `${(1 / row.length) * 100}%`, textAlign: 'center' }}>
+											<React.Fragment key={colIndex}>
 												{col.map((button, buttonIndex) => {
-													if (button.type === 'toggle') {
-														return (
-															<div key={buttonIndex}>
-																<ToggleButton id={button.id} alignment={button.alignment}>
-																	{button.text}
-																</ToggleButton>
-															</div>
-														)
-													}
-													if (button.type === 'message') {
-														return (
-															<div key={buttonIndex}>
-																<MessageButton id={button.id} alignment={button.alignment}>
-																	{button.text}
-																</MessageButton>
-															</div>
-														)
-													}
-													if (button.type === 'timer') {
-														return (
-															<div key={buttonIndex}>
-																<TimerButton id={button.id} alignment={button.alignment}>
-																	{button.text}
-																</TimerButton>
-															</div>
-														)
-													}
-													if (button.type === 'group') {
-														return (
-															<ButtonGroup
-																key={buttonIndex}
-																orientation={button.direction}
-																alignment={button.alignment}
-																buttons={button.buttons}
-															/>
-														)
-													}
-													return false
+													return (
+														<div
+															key={buttonIndex}
+															style={{
+																display: 'flex',
+																flexBasis: `${(1 / row.length) * 100}%`,
+																justifyContent:
+																	button.alignment === 'right'
+																		? 'flex-end'
+																		: button.alignment === 'center'
+																		? 'center'
+																		: 'flex-start',
+															}}
+														>
+															{button.type === 'toggle' && (
+																<div>
+																	<ToggleButton id={button.id} alignment={button.alignment}>
+																		{button.text}
+																	</ToggleButton>
+																</div>
+															)}
+															{button.type === 'message' && (
+																<div>
+																	<MessageButton id={button.id} alignment={button.alignment}>
+																		{button.text}
+																	</MessageButton>
+																</div>
+															)}
+															{button.type === 'timer' && (
+																<div>
+																	<TimerButton id={button.id} alignment={button.alignment}>
+																		{button.text}
+																	</TimerButton>
+																</div>
+															)}
+															{button.type === 'group' && (
+																<ButtonGroup
+																	title={button.title}
+																	orientation={button.direction}
+																	alignment={button.alignment}
+																	buttons={button.buttons}
+																/>
+															)}
+														</div>
+													)
 												})}
-											</div>
+											</React.Fragment>
 										)
 									})}
 								</Row>
@@ -805,9 +855,7 @@ const EditTemplate = props => {
 																						setEditButton(buttonIndex)
 																						setValues({
 																							text: button.text || '',
-																							message: button.message || '',
-																							time: button.time || 0,
-																							showTime: button.showTime || false,
+																							messages: button.messages || [{ message: '', time: 0, showTime: true }],
 																							alignment: button.alignment || 'center',
 																						})
 																					}}
@@ -821,6 +869,7 @@ const EditTemplate = props => {
 																		return (
 																			<div key={buttonIndex}>
 																				<ButtonGroup
+																					title={button.title}
 																					orientation={button.direction}
 																					alignment={button.alignment}
 																					buttons={button.buttons}
@@ -832,6 +881,7 @@ const EditTemplate = props => {
 																						setAddCol(colIndex)
 																						setEditButton(buttonIndex)
 																						setValues({
+																							title: button.title || '',
 																							buttons: button.buttons,
 																							direction: button.direction,
 																							alignment: button.alignment || 'center',
